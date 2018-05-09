@@ -16,7 +16,7 @@ Install the custom Japanese tokenizer to local Maven repository:
 ```sh
 mvn install:install-file \
     -Dfile=lucene-analyzers-kuromoji-ipadic-neologd-5.3.1-20180507.jar \
-    -DpomFile=lucene-analyzers-kuromoji-neologd.pom
+    -DpomFile=lucene-analyzers-kuromoji-neologd.xml
 ```
 
 Build Hive UDF:
