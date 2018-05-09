@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -215,28 +214,6 @@ public final class KuromojiNEologdUDF extends GenericUDF {
             }
         }
         return results;
-    }
-
-    @Nullable
-    private static UserDictionary userDictionary() throws UDFArgumentException {
-        InputStream is = KuromojiNEologdUDF.class.getResourceAsStream("kuromoji-user-dict-neologd.csv.gz");
-
-        try {
-            is = new GZIPInputStream(is);
-        } catch (IOException e) {
-            throw new UDFArgumentException("Failed to create GZIPInputStream: " + ExceptionUtils.prettyPrintStackTrace(e));
-        }
-        CharsetDecoder decoder = StandardCharsets.UTF_8.newDecoder()
-                                                       .onMalformedInput(CodingErrorAction.REPORT)
-                                                       .onUnmappableCharacter(
-                                                               CodingErrorAction.REPORT);
-        final Reader reader = new InputStreamReader(is, decoder);
-        try {
-            return UserDictionary.open(reader); // return null if empty
-        } catch (Throwable e) {
-            throw new UDFArgumentException(
-                    "Failed to parse the file in CSV format (UTF-8 encoding is expected): " + ExceptionUtils.prettyPrintStackTrace(e));
-        }
     }
 
     @Nullable
