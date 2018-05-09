@@ -190,6 +190,16 @@ public class KuromojiNEologdUDFTest {
     }
 
     @Test
+    public void testEvaluateReturnsVersion() throws IOException, HiveException {
+        KuromojiNEologdUDF udf = new KuromojiNEologdUDF();
+        DeferredObject[] args = new DeferredObject[0];
+        List<Text> tokens = udf.evaluate(args);
+        Assert.assertNotNull(tokens);
+        Assert.assertEquals(1, tokens.size());
+        udf.close();
+    }
+
+    @Test
     public void testEvaluateOneRow() throws IOException, HiveException {
         KuromojiNEologdUDF udf = new KuromojiNEologdUDF();
         ObjectInspector[] argOIs = new ObjectInspector[1];

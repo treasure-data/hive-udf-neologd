@@ -37,6 +37,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
@@ -84,7 +85,7 @@ public final class KuromojiNEologdUDF extends GenericUDF {
     @Override
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
         final int arglen = arguments.length;
-        if (arglen < 1 || arglen > 5) {
+        if (arglen > 5) {
             throw new UDFArgumentException(
                     "Invalid number of arguments for `tokenize_ja_neologd`: " + arglen);
         }
@@ -117,6 +118,16 @@ public final class KuromojiNEologdUDF extends GenericUDF {
 
     @Override
     public List<Text> evaluate(DeferredObject[] arguments) throws HiveException {
+        if (arguments.length == 0) {
+            final Properties properties = new Properties();
+            try {
+                properties.load(this.getClass().getResourceAsStream(".properties"));
+            } catch (IOException e) {
+                throw new HiveException("Failed to read version");
+            }
+            return Collections.singletonList(new Text(properties.getProperty("version")));
+        }
+
         if (_analyzer == null) {
             CharArraySet stopWords = stopWords(_stopWordsArray);
 
