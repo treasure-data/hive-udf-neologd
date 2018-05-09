@@ -91,7 +91,7 @@ public class KuromojiNEologdUDFTest {
         DeferredObject[] args = new DeferredObject[1];
         args[0] = new DeferredObject() {
             public Text get() throws HiveException {
-                return new Text("クロモジのJapaneseAnalyzerを使ってみる。テスト。");
+                return new Text("こんにちは。");
             }
 
             @Override
@@ -200,7 +200,7 @@ public class KuromojiNEologdUDFTest {
         DeferredObject[] args = new DeferredObject[1];
         args[0] = new DeferredObject() {
             public Text get() throws HiveException {
-                return new Text("クロモジのJapaneseAnalyzerを使ってみる。きゃりーぱみゅぱみゅ。");
+                return new Text("10日放送の「中居正広のミになる図書館」（テレビ朝日系）で、SMAPの中居正広が、篠原信一の過去の勘違いを明かす一幕があった。");
             }
 
             @Override
@@ -208,7 +208,7 @@ public class KuromojiNEologdUDFTest {
         };
         List<Text> tokens = udf.evaluate(args);
         Assert.assertNotNull(tokens);
-        Assert.assertEquals(6, tokens.size());
+        Assert.assertEquals(12, tokens.size());
         udf.close();
     }
 
@@ -223,7 +223,7 @@ public class KuromojiNEologdUDFTest {
         DeferredObject[] args = new DeferredObject[1];
         args[0] = new DeferredObject() {
             public Text get() throws HiveException {
-                return new Text("クロモジのJapaneseAnalyzerを使ってみる。テスト。");
+                return new Text("10日放送の「中居正広のミになる図書館」（テレビ朝日系）で、SMAPの中居正広が、篠原信一の過去の勘違いを明かす一幕があった。");
             }
 
             @Override
@@ -231,11 +231,11 @@ public class KuromojiNEologdUDFTest {
         };
         List<Text> tokens = udf.evaluate(args);
         Assert.assertNotNull(tokens);
-        Assert.assertEquals(6, tokens.size());
+        Assert.assertEquals(12, tokens.size());
 
         args[0] = new DeferredObject() {
             public Text get() throws HiveException {
-                return new Text("クロモジのJapaneseAnalyzerを使ってみる。");
+                return new Text("きゃりーぱみゅぱみゅ。");
             }
 
             @Override
@@ -243,7 +243,7 @@ public class KuromojiNEologdUDFTest {
         };
         tokens = udf.evaluate(args);
         Assert.assertNotNull(tokens);
-        Assert.assertEquals(5, tokens.size());
+        Assert.assertEquals(1, tokens.size());
 
         udf.close();
     }
@@ -316,7 +316,7 @@ public class KuromojiNEologdUDFTest {
         DeferredObject[] args = new DeferredObject[1];
         args[0] = new DeferredObject() {
             public Text get() throws HiveException {
-                return new Text("クロモジのJapaneseAnalyzerを使ってみる。テスト。");
+                return new Text("こんにちは。");
             }
 
             @Override
