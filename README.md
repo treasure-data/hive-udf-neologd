@@ -5,11 +5,13 @@ This package extends [Hivemall](https://github.com/apache/incubator-hivemall)'s 
 
 ## Usage
 
-Get and run build script from [kazuhira-r/kuromoji-with-mecab-neologd-buildscript](https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript):
+Get and run build script:
 
 ```sh
-./build-lucene-kuromoji-with-mecab-ipadic-neologd.sh -L releases/lucene-solr/5.3.1 -p org.apache.lucene.analysis.ja.neologd
+./build.sh
 ```
+
+> The build script is modified version of [kazuhira-r/kuromoji-with-mecab-neologd-buildscript](https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript).
 
 Set latest NEologd version date:
 
