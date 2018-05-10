@@ -1,4 +1,9 @@
 *.iml
 
+lucene-analyzers-kuromoji*.jar
+
+lucene-solr/
+mecab-ipadic-neologd/
+
 .idea/
 target/
