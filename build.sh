@@ -200,4 +200,14 @@ cp ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji* $
 
 ls -l ${JAR_FILE_OUTPUT_DIRECTORY}/lucene-analyzers-kuromoji*
 
+logging udf INFO 'Package hive-udf-neologd'
+
+mvn versions:set -DnewVersion=0.1.0-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
+git commit pom.xml -m "Bump NEologd version date to "${NEOLOGD_VERSION_DATE}
+
+mvn install:install-file \
+    -Dfile=lucene-analyzers-kuromoji-ipadic-neologd-5.3.1-${NEOLOGD_VERSION_DATE}.jar \
+    -DpomFile=lucene-analyzers-kuromoji-neologd.xml
+mvn clean install
+
 logging main INFO 'END.'

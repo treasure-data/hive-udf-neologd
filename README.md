@@ -15,29 +15,7 @@ Run build script:
 
 > The build script is modified version of [kazuhira-r/kuromoji-with-mecab-neologd-buildscript](https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript).
 
-Set latest NEologd version date:
-
-```sh
-NEOLOGD_VERSION_DATE=`ls -1 lucene-analyzers-kuromoji*.jar | perl -wp -e 's!.+-(\d+).jar!$1!'`
-mvn versions:set -DnewVersion=0.1.0-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
-git commit pom.xml -m "Bump NEologd version date to "${NEOLOGD_VERSION_DATE}
-```
-
-Install the custom Japanese tokenizer to local Maven repository:
-
-```sh
-mvn install:install-file \
-    -Dfile=lucene-analyzers-kuromoji-ipadic-neologd-5.3.1-${NEOLOGD_VERSION_DATE}.jar \
-    -DpomFile=lucene-analyzers-kuromoji-neologd.xml
-```
-
-Build Hive UDF:
-
-```sh
-mvn clean install
-```
-
-Test on Hive:
+Use the UDFs on Hive:
 
 ```sql
 add jar hivemall-core-0.5.0-incubating.jar;
