@@ -25,8 +25,9 @@ MAX_BASEFORM_LENGTH=15
 MECAB_IPADIC_NEOLOGD_TAG=master
 
 ## Lucene Target Tag
+LUCENE_VERSION=5.3.1
 DEFAULT_LUCENE_VERSION_TAG=
-LUCENE_VERSION_TAG=releases/lucene-solr/5.3.1
+LUCENE_VERSION_TAG=releases/lucene-solr/${LUCENE_VERSION}
 
 ## Kuromoji build max heapsize
 KUROMOJI_BUILD_MAX_HEAPSIZE=5g
@@ -193,21 +194,20 @@ fi
 
 cd ${KUROMOJI_NEOLOGD_BUILD_WORK_DIR}
 
-KUROMOJI_SNAPSHOT_JAR_FILENAME=`ls -1 ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji*`
-KUROMOJI_JAR_FILENAME=`echo ${KUROMOJI_SNAPSHOT_JAR_FILENAME} | perl -wp -e 's!(.+)-SNAPSHOT(.+)!$1$2!'`
-mv ${KUROMOJI_SNAPSHOT_JAR_FILENAME} ${KUROMOJI_JAR_FILENAME}
-cp ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji* ${JAR_FILE_OUTPUT_DIRECTORY}
-
-ls -l ${JAR_FILE_OUTPUT_DIRECTORY}/lucene-analyzers-kuromoji*
-
 logging udf INFO 'Package hive-udf-neologd'
+
+mvn versions:set -f lucene-analyzers-kuromoji-neologd.xml -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
+mvn versions:set-property -Dproperty=lucene.version -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
+git commit lucene-analyzers-kuromoji-neologd.xml pom.xml -m "Set Lucene version to "${LUCENE_VERSION}
+
+KUROMOJI_SNAPSHOT_JAR_FILENAME=`ls -1 ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji*`
+mvn install:install-file \
+    -Dfile=${KUROMOJI_SNAPSHOT_JAR_FILENAME} \
+    -DpomFile=lucene-analyzers-kuromoji-neologd.xml
 
 mvn versions:set -DnewVersion=0.1.0-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
 git commit pom.xml -m "Bump NEologd version date to "${NEOLOGD_VERSION_DATE}
 
-mvn install:install-file \
-    -Dfile=lucene-analyzers-kuromoji-ipadic-neologd-5.3.1-${NEOLOGD_VERSION_DATE}.jar \
-    -DpomFile=lucene-analyzers-kuromoji-neologd.xml
 mvn clean install
 
 logging main INFO 'END.'
