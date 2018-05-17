@@ -47,7 +47,7 @@
             <groupId>org.apache.hivemall</groupId>
             <artifactId>hivemall-core</artifactId>
             <version>${hivemall.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -94,12 +94,6 @@
                             <createSourcesJar>false</createSourcesJar>
                             <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
                             <filters>
-                                <filter>
-                                    <artifact>org.apache.hivemall:hivemall-core</artifact>
-                                    <includes>
-                                        <include>hivemall/utils/**</include>
-                                    </includes>
-                                </filter>
                                 <filter>
                                     <artifact>org.apache.lucene:*</artifact>
                                     <includes>
