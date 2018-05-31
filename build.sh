@@ -2,6 +2,8 @@
 
 # The original script: https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript
 
+VERSION=0.1.0
+
 KUROMOJI_NEOLOGD_BUILD_WORK_DIR=`pwd`
 
 logging() {
@@ -204,7 +206,7 @@ mvn install:install-file \
     -Dfile=${KUROMOJI_SNAPSHOT_JAR_FILENAME} \
     -DpomFile=lucene-analyzers-kuromoji-neologd.xml
 
-mvn versions:set -DnewVersion=0.1.0-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
+mvn versions:set -DnewVersion=${VERSION}-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
 git commit pom.xml -m "Bump NEologd version date to "${NEOLOGD_VERSION_DATE}
 
 mvn clean install

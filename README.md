@@ -19,10 +19,10 @@ Use the UDFs on Hive:
 
 ```sql
 add jar hivemall-core-0.5.0-incubating.jar; -- or `add jar hivemall-all-0.5.0-incubating.jar;`
-add jar hive-udf-neologd-0.1.0-{NEOLOGD_VERSION_DATE}.jar;
+add jar hive-udf-neologd-{VERSION}-{NEOLOGD_VERSION_DATE}.jar; -- e.g., add jar hive-udf-neologd-0.1.0-20180524.jar;
 create temporary function tokenize_ja_neologd as 'hivemall.nlp.tokenizer.KuromojiNEologdUDF';
 select tokenize_ja_neologd();
--- ["0.1.0-{NEOLOGD_VERSION_DATE}"]
+-- ["{VERSION}-{NEOLOGD_VERSION_DATE}"]
 select tokenize_ja_neologd('10日放送の「中居正広のミになる図書館」（テレビ朝日系）で、SMAPの中居正広が、篠原信一の過去の勘違いを明かす一幕があった。');
 -- ["10日","放送","中居正広の身になる図書館","テレビ朝日","系","smap","中居正広","篠原信一","過去","勘違い","明かす","一幕"]
 ```
