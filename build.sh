@@ -72,24 +72,23 @@ cd ${KUROMOJI_NEOLOGD_BUILD_WORK_DIR}
 
 logging mecab-ipadic-NEologd INFO 'Download mecab-ipadic-NEologd.'
 if [ ! -e mecab-ipadic-neologd ]; then
-    git clone https://github.com/neologd/mecab-ipadic-neologd.git
-else
-    cd mecab-ipadic-neologd
-
-    if [ -d build ]; then
-        rm -rf build
-    fi
-
-    git checkout master
-    git fetch origin
-    git reset --hard origin/master
-    git pull --tags
-    cd ..
+    git clone --branch ${MECAB_IPADIC_NEOLOGD_TAG} --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
 fi
-
 cd mecab-ipadic-neologd
 
+if [ "$(git symbolic-ref -q --short HEAD || git describe --tags)" != "${MECAB_IPADIC_NEOLOGD_TAG}" ]; then
+    cd ..
+    rm -rf mecab-ipadic-neologd
+    git clone --branch ${MECAB_IPADIC_NEOLOGD_TAG} --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
+    cd mecab-ipadic-neologd
+fi
+
+if [ -d build ]; then
+    rm -rf build
+fi
+
 git checkout ${MECAB_IPADIC_NEOLOGD_TAG}
+git reset --hard ${MECAB_IPADIC_NEOLOGD_TAG}
 
 if [ $? -ne 0 ]; then
     logging mecab-ipadic-NEologd ERROR "git checkout[${MECAB_IPADIC_NEOLOGD_TAG}] failed. Please re-run after execute 'rm -f mecab-ipadic-neologd'"
@@ -108,23 +107,23 @@ cd ${KUROMOJI_NEOLOGD_BUILD_WORK_DIR}
 
 logging lucene INFO 'Lucene Repository Clone.'
 if [ ! -e lucene-solr ]; then
-    git clone https://github.com/apache/lucene-solr.git
-else
-    cd lucene-solr
-    git checkout *
-    git checkout master
-    git fetch origin
-    git reset --hard origin/master
-    git status -s | grep '^?' | perl -wn -e 's!^\?+ ([^ ]+)!git clean -df $1!; system("$_")'
-    ant clean
-    git pull --tags
+    git clone --branch ${LUCENE_VERSION_TAG} --depth 1 https://github.com/apache/lucene-solr.git
+fi
+cd lucene-solr
+
+if [ "$(git symbolic-ref -q --short HEAD || git describe --tags)" != "${LUCENE_VERSION_TAG}" ]; then
     cd ..
+    rm -rf lucene-solr
+    git clone --branch ${LUCENE_VERSION_TAG} --depth 1 https://github.com/apache/lucene-solr.git
+    cd lucene-solr
 fi
 
-cd lucene-solr
-LUCENE_SRC_DIR=`pwd`
-
 git checkout ${LUCENE_VERSION_TAG}
+git reset --hard ${LUCENE_VERSION_TAG}
+git status -s | grep '^?' | perl -wn -e 's!^\?+ ([^ ]+)!git clean -df $1!; system("$_")'
+ant clean
+
+LUCENE_SRC_DIR=`pwd`
 
 if [ $? -ne 0 ]; then
     logging lucene ERROR "git checkout[${LUCENE_VERSION_TAG}] failed. Please re-run after execute 'rm -f lucene-solr'"
