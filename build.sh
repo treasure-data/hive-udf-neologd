@@ -2,6 +2,7 @@
 
 # The original script: https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript
 
+SCRIPT_NAME=$0
 KUROMOJI_NEOLOGD_BUILD_WORK_DIR=`pwd`
 
 logging() {
@@ -14,15 +15,38 @@ logging() {
     echo "### [$TIME] [$LABEL] [$LEVEL] $MESSAGE"
 }
 
+usage() {
+    cat <<EOF
+Usage: ${SCRIPT_NAME} [options...]
+  options:
+    -d ... specify NEologd version date. (default: latest dictionary on the master branch)
+    -h ... help.
+EOF
+}
+
+## mecab-ipadic-NEologd Target Tag
+MECAB_IPADIC_NEOLOGD_TAG=master
+
+while getopts c:d:h OPTION
+do
+    case $OPTION in
+        d)
+            MECAB_IPADIC_NEOLOGD_TAG=`curl -s https://raw.githubusercontent.com/neologd/mecab-ipadic-neologd/master/ChangeLog | grep -A 2 ${OPTARG}'.csv.xz' | tail -n 1 | rev | cut -d'/' -f1 | rev`;;
+        h)
+            usage
+            exit 0;;
+        \?)
+            usage
+            exit 1;;
+    esac
+done
+
 ## MeCab
 MECAB_VERSION=mecab-0.996
 MECAB_INSTALL_DIR=${KUROMOJI_NEOLOGD_BUILD_WORK_DIR}/mecab
 
 ## mecab-ipadic-NEologd
 MAX_BASEFORM_LENGTH=15
-
-## mecab-ipadic-NEologd Target Tag
-MECAB_IPADIC_NEOLOGD_TAG=master
 
 ## Lucene Target Tag
 LUCENE_VERSION=5.3.1
@@ -40,6 +64,11 @@ DEFAULT_KUROMOJI_PACKAGE=org.apache.lucene.analysis.ja
 REDEFINED_KUROMOJI_PACKAGE=org.apache.lucene.analysis.ja.neologd
 
 logging main INFO 'START.'
+
+if [ -z "$MECAB_IPADIC_NEOLOGD_TAG" ]; then
+    logging pre-check ERROR "Given NEologd version date is invalid."
+    exit 1
+fi
 
 if [ ! -d ${JAR_FILE_OUTPUT_DIRECTORY} ]; then
     logging pre-check ERROR "directory[${JAR_FILE_OUTPUT_DIRECTORY}], not exits."
@@ -71,24 +100,26 @@ fi
 cd ${KUROMOJI_NEOLOGD_BUILD_WORK_DIR}
 
 logging mecab-ipadic-NEologd INFO 'Download mecab-ipadic-NEologd.'
+
 if [ ! -e mecab-ipadic-neologd ]; then
-    git clone --branch ${MECAB_IPADIC_NEOLOGD_TAG} --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
+    git clone https://github.com/neologd/mecab-ipadic-neologd.git
+else
+    cd mecab-ipadic-neologd
+
+    if [ -d build ]; then
+        rm -rf build
+    fi
+
+    git checkout master
+    git fetch origin
+    git reset --hard origin/master
+    git pull --tags
+    cd ..
 fi
+
 cd mecab-ipadic-neologd
 
-if [ "$(git symbolic-ref -q --short HEAD || git describe --tags)" != "${MECAB_IPADIC_NEOLOGD_TAG}" ]; then
-    cd ..
-    rm -rf mecab-ipadic-neologd
-    git clone --branch ${MECAB_IPADIC_NEOLOGD_TAG} --depth 1 https://github.com/neologd/mecab-ipadic-neologd.git
-    cd mecab-ipadic-neologd
-fi
-
-if [ -d build ]; then
-    rm -rf build
-fi
-
 git checkout ${MECAB_IPADIC_NEOLOGD_TAG}
-git reset --hard ${MECAB_IPADIC_NEOLOGD_TAG}
 
 if [ $? -ne 0 ]; then
     logging mecab-ipadic-NEologd ERROR "git checkout[${MECAB_IPADIC_NEOLOGD_TAG}] failed. Please re-run after execute 'rm -f mecab-ipadic-neologd'"
@@ -206,8 +237,8 @@ mvn install:install-file \
 
 UDF_VERSION=`cat VERSION`
 mvn versions:set -DnewVersion=${UDF_VERSION}-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
-git commit VERSION -m "Bump UDF version to "${UDF_VERSION}
-git commit pom.xml -m "Bump NEologd version date to "${NEOLOGD_VERSION_DATE}
+echo ${NEOLOGD_VERSION_DATE} > NEOLOGD_VERSION_DATE
+git commit VERSION NEOLOGD_VERSION_DATE pom.xml -m "Update version to ${UDF_VERSION}-${NEOLOGD_VERSION_DATE}"
 
 mvn clean install
 
