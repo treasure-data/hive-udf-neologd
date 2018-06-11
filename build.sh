@@ -19,7 +19,7 @@ usage() {
     cat <<EOF
 Usage: ${SCRIPT_NAME} [options...]
   options:
-    -d ... specify NEologd version date. (default: latest dictionary on the master branch)
+    -d ... specify NEologd version date. (format: YYYYMMDD, default: latest dictionary on the master branch)
     -h ... help.
 EOF
 }
@@ -31,7 +31,12 @@ while getopts c:d:h OPTION
 do
     case $OPTION in
         d)
-            MECAB_IPADIC_NEOLOGD_TAG=`curl -s https://raw.githubusercontent.com/neologd/mecab-ipadic-neologd/master/ChangeLog | grep -A 2 ${OPTARG}'.csv.xz' | tail -n 1 | rev | cut -d'/' -f1 | rev`;;
+            yyyymmdd="^[0-9]{8}$"
+            if [[ ! ${OPTARG} =~ $yyyymmdd ]]; then
+              usage
+              exit 1
+            fi
+            MECAB_IPADIC_NEOLOGD_TAG=${OPTARG:0:4}-${OPTARG:4:2}-${OPTARG:6};;
         h)
             usage
             exit 0;;
@@ -64,11 +69,6 @@ DEFAULT_KUROMOJI_PACKAGE=org.apache.lucene.analysis.ja
 REDEFINED_KUROMOJI_PACKAGE=org.apache.lucene.analysis.ja.neologd
 
 logging main INFO 'START.'
-
-if [ -z "$MECAB_IPADIC_NEOLOGD_TAG" ]; then
-    logging pre-check ERROR "Given NEologd version date is invalid."
-    exit 1
-fi
 
 if [ ! -d ${JAR_FILE_OUTPUT_DIRECTORY} ]; then
     logging pre-check ERROR "directory[${JAR_FILE_OUTPUT_DIRECTORY}], not exits."
@@ -119,12 +119,35 @@ fi
 
 cd mecab-ipadic-neologd
 
+if [ "${MECAB_IPADIC_NEOLOGD_TAG}" != "master" ]; then
+    logging mecab-ipadic_NEologd INFO "Use dictionary published on the nearest date after ${MECAB_IPADIC_NEOLOGD_TAG} (inclusive)"
+    NEAREST_COMMIT_DATE=`git log --pretty=format:%cd --date=short --after=${MECAB_IPADIC_NEOLOGD_TAG} --reverse | head -n 1`
+    MECAB_IPADIC_NEOLOGD_TAG=`git log -1 --pretty=format:%H --after="${NEAREST_COMMIT_DATE} 00:00:00" --until="${NEAREST_COMMIT_DATE} 23:59:59"`
+
+    if [ -z "$MECAB_IPADIC_NEOLOGD_TAG" ]; then
+        logging mecab-ipadic_NEologd ERROR "NEologd version date specified by the '-d' option is invalid."
+        exit 1
+    fi
+fi
+
 git checkout ${MECAB_IPADIC_NEOLOGD_TAG}
 
 if [ $? -ne 0 ]; then
     logging mecab-ipadic-NEologd ERROR "git checkout[${MECAB_IPADIC_NEOLOGD_TAG}] failed. Please re-run after execute 'rm -f mecab-ipadic-neologd'"
     exit 1
 fi
+
+# even if on the master branch, remove mecab-user-dict-seed file and
+# re-download by the following scripts
+rm -f seed/mecab-user-dict-seed.*
+
+# get the seed file
+SEED_COMMIT_HASH=`cat Changelog | grep -m 1 'commit: ' | perl -wp -e 's!^.*/([0-9a-z]+).*$!$1!'`
+SEED_FILENAME=`cat Changelog | grep -m 1 'seed/' | perl -wp -e 's!^.*seed/(.+\.csv\.xz).*$!$1!'`
+SEED_DOWNLOAD_URL=https://github.com/neologd/mecab-ipadic-neologd/raw/${SEED_COMMIT_HASH}/seed/${SEED_FILENAME}
+
+logging mecab-ipadic_NEologd INFO "Download mecab-user-dict-seed file: ${SEED_DOWNLOAD_URL}"
+wget $SEED_DOWNLOAD_URL -O seed/$SEED_FILENAME
 
 libexec/make-mecab-ipadic-neologd.sh -L ${MAX_BASEFORM_LENGTH}
 
