@@ -142,8 +142,12 @@ fi
 rm -f seed/mecab-user-dict-seed.*
 
 # get the seed file
-SEED_COMMIT_HASH=`cat Changelog | grep -m 1 'commit: ' | perl -wp -e 's!^.*/([0-9a-z]+).*$!$1!'`
-SEED_FILENAME=`cat Changelog | grep -m 1 'seed/' | perl -wp -e 's!^.*seed/(.+\.csv\.xz).*$!$1!'`
+SEED_COMMIT_HASH=`cat ChangeLog | grep -m 1 'commit: ' | perl -wp -e 's!^.*/([0-9a-z]+).*$!$1!'`
+SEED_FILENAME=`cat ChangeLog | grep -m 1 'seed/' | perl -wp -e 's!^.*seed/(.+\.csv\.xz).*$!$1!'`
+if [ -z "$SEED_COMMIT_HASH" -o -z "$SEED_FILENAME" ]; then
+    logging mecab-ipadic_NEologd ERROR "NEologd changelog cannot be parsed, and hence seed file name and its commit hash cannot be found."
+    exit 1
+fi
 SEED_DOWNLOAD_URL=https://github.com/neologd/mecab-ipadic-neologd/raw/${SEED_COMMIT_HASH}/seed/${SEED_FILENAME}
 
 logging mecab-ipadic_NEologd INFO "Download mecab-user-dict-seed file: ${SEED_DOWNLOAD_URL}"
