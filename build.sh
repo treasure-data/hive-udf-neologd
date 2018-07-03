@@ -129,26 +129,31 @@ if [ "${MECAB_IPADIC_NEOLOGD_TAG}" != "master" ]; then
         exit 1
     fi
 
-    git checkout ${MECAB_IPADIC_NEOLOGD_TAG}
+    MECAB_IPADIC_NEOLOGD_MASTER_COMMIT_HASH=`git rev-parse master`
+    if [ "${MECAB_IPADIC_NEOLOGD_TAG}" == "${MECAB_IPADIC_NEOLOGD_MASTER_COMMIT_HASH}" ]; then
+        logging mecab-ipadic_NEologd INFO "NEologd version date specified by the '-d' option corresponds to the master branch."
+    else
+        git checkout ${MECAB_IPADIC_NEOLOGD_TAG}
 
-    if [ $? -ne 0 ]; then
-        logging mecab-ipadic-NEologd ERROR "git checkout[${MECAB_IPADIC_NEOLOGD_TAG}] failed. Please re-run after execute 'rm -f mecab-ipadic-neologd'"
-        exit 1
+        if [ $? -ne 0 ]; then
+            logging mecab-ipadic-NEologd ERROR "git checkout[${MECAB_IPADIC_NEOLOGD_TAG}] failed. Please re-run after execute 'rm -f mecab-ipadic-neologd'"
+            exit 1
+        fi
+
+        rm -f seed/mecab-user-dict-seed.*
+
+        # get the seed file
+        SEED_COMMIT_HASH=`cat ChangeLog | grep -m 1 'commit: ' | perl -wp -e 's!^.*/([0-9a-z]+).*$!$1!'`
+        SEED_FILENAME=`cat ChangeLog | grep -m 1 'seed/' | perl -wp -e 's!^.*seed/(.+\.csv\.xz).*$!$1!'`
+        if [ -z "$SEED_COMMIT_HASH" -o -z "$SEED_FILENAME" ]; then
+            logging mecab-ipadic_NEologd ERROR "NEologd changelog cannot be parsed, and hence seed file name and its commit hash cannot be found."
+            exit 1
+        fi
+        SEED_DOWNLOAD_URL=https://github.com/neologd/mecab-ipadic-neologd/raw/${SEED_COMMIT_HASH}/seed/${SEED_FILENAME}
+
+        logging mecab-ipadic_NEologd INFO "Download mecab-user-dict-seed file: ${SEED_DOWNLOAD_URL}"
+        wget $SEED_DOWNLOAD_URL -O seed/$SEED_FILENAME
     fi
-
-    rm -f seed/mecab-user-dict-seed.*
-
-    # get the seed file
-    SEED_COMMIT_HASH=`cat ChangeLog | grep -m 1 'commit: ' | perl -wp -e 's!^.*/([0-9a-z]+).*$!$1!'`
-    SEED_FILENAME=`cat ChangeLog | grep -m 1 'seed/' | perl -wp -e 's!^.*seed/(.+\.csv\.xz).*$!$1!'`
-    if [ -z "$SEED_COMMIT_HASH" -o -z "$SEED_FILENAME" ]; then
-        logging mecab-ipadic_NEologd ERROR "NEologd changelog cannot be parsed, and hence seed file name and its commit hash cannot be found."
-        exit 1
-    fi
-    SEED_DOWNLOAD_URL=https://github.com/neologd/mecab-ipadic-neologd/raw/${SEED_COMMIT_HASH}/seed/${SEED_FILENAME}
-
-    logging mecab-ipadic_NEologd INFO "Download mecab-user-dict-seed file: ${SEED_DOWNLOAD_URL}"
-    wget $SEED_DOWNLOAD_URL -O seed/$SEED_FILENAME
 fi
 
 libexec/make-mecab-ipadic-neologd.sh -L ${MAX_BASEFORM_LENGTH}
