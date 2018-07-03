@@ -3,7 +3,7 @@
 
     <groupId>me.takuti</groupId>
     <artifactId>hive-udf-neologd</artifactId>
-    <version>0.1.0-20180524</version>
+    <version>0.1.0-20180628</version>
 
     <name>Hive Japanese NLP UDFs with NEologd</name>
     <description>Extension of Apache Hivemall for modern Japanese NLP</description>
