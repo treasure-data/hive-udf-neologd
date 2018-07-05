@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.lucene</groupId>
   <artifactId>lucene-analyzers-kuromoji-neologd</artifactId>
-  <version>5.3.1</version>
+  <version>5.5.5</version>
   <description>org.apache.lucene:lucene-analyzers-kuromoji with NEologd</description>
   <dependencies>
     <dependency>
