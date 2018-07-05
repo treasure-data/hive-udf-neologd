@@ -1,0 +1,11 @@
+language: java
+
+before_install:
+  - apt-get update
+  - apt-get install -y ant patch build-essential file
+
+install:
+  - ./build.sh -d `cat NEOLOGD_VERSION_DATE`
+
+notifications:
+  email: false
