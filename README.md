@@ -3,7 +3,7 @@ Hive Japanese NLP UDFs with NEologd
 
 This package extends [Hivemall](https://github.com/apache/incubator-hivemall)'s Japanese NLP capability by utilizing [NEologd](https://github.com/neologd/mecab-ipadic-neologd).
 
-Before getting started, get **hivemall-all-0.5.0-incubating** as documented on [Hivemall installation guide](https://hivemall.incubator.apache.org/userguide/getting_started/installation.html).
+Before getting started, build the latest version of **hivemall-all-{HIVEMALL_VERSION}.jar** as documented on [Hivemall installation guide](https://hivemall.incubator.apache.org/userguide/getting_started/installation.html).
 
 ## Usage
 
@@ -18,8 +18,8 @@ Run build script:
 Use the UDFs on Hive:
 
 ```sql
-add jar hivemall-all-0.5.0-incubating.jar;
-add jar hive-udf-neologd-{VERSION}-{NEOLOGD_VERSION_DATE}.jar; -- e.g., add jar hive-udf-neologd-0.1.0-20180524.jar;
+add jar hivemall-all-{HIVEMALL_VERSION}.jar; -- e.g., hivemall-all-0.5.1-incubating-SNAPSHOT.jar
+add jar hive-udf-neologd-{VERSION}-{NEOLOGD_VERSION_DATE}.jar; -- e.g., hive-udf-neologd-0.1.0-20180524.jar;
 create temporary function tokenize_ja_neologd as 'hivemall.nlp.tokenizer.KuromojiNEologdUDF';
 select tokenize_ja_neologd();
 -- ["{VERSION}-{NEOLOGD_VERSION_DATE}"]
