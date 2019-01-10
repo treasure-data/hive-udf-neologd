@@ -122,7 +122,7 @@ cd mecab-ipadic-neologd
 if [ "${MECAB_IPADIC_NEOLOGD_TAG}" != "master" ]; then
     logging mecab-ipadic_NEologd INFO "Use dictionary published on the nearest date after ${MECAB_IPADIC_NEOLOGD_TAG} (inclusive)"
     NEAREST_COMMIT_DATE=`git log --pretty=format:%cd --date=short --after=${MECAB_IPADIC_NEOLOGD_TAG} --reverse | head -n 1`
-    MECAB_IPADIC_NEOLOGD_TAG=`git log -1 --pretty=format:%H --after="${NEAREST_COMMIT_DATE} 00:00:00" --until="${NEAREST_COMMIT_DATE} 23:59:59"`
+    MECAB_IPADIC_NEOLOGD_TAG=`git log -1 --pretty=format:%H --after="${NEAREST_COMMIT_DATE}T00:00:00Z" --until="${NEAREST_COMMIT_DATE}T23:59:59Z"`
 
     if [ -z "$MECAB_IPADIC_NEOLOGD_TAG" ]; then
         logging mecab-ipadic_NEologd ERROR "NEologd version date specified by the '-d' option is invalid."
