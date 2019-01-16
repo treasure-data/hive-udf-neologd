@@ -7,3 +7,7 @@ mecab-ipadic-neologd/
 
 .idea/
 target/
+
+mecab/
+mecab-*/
+mecab-*.tar.gz
