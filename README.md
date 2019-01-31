@@ -1,7 +1,7 @@
 Hive Japanese NLP UDFs with NEologd
 ===
 
-[![Build Status](https://travis-ci.org/takuti/hive-udf-neologd.svg?branch=master)](https://travis-ci.org/takuti/hive-udf-neologd)
+[![Build Status](https://travis-ci.org/treasure-data/hive-udf-neologd.svg?branch=master)](https://travis-ci.org/treasure-data/hive-udf-neologd)
 
 This package extends [Hivemall](https://github.com/apache/incubator-hivemall)'s Japanese NLP capability by utilizing [NEologd](https://github.com/neologd/mecab-ipadic-neologd).
 
