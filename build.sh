@@ -260,7 +260,7 @@ logging udf INFO 'Package hive-udf-neologd'
 
 mvn versions:set -f lucene-analyzers-kuromoji-neologd.xml -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
 mvn versions:set-property -Dproperty=lucene.version -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
-git commit lucene-analyzers-kuromoji-neologd.xml pom.xml -m "Set Lucene version to "${LUCENE_VERSION}
+git commit --dry-run lucene-analyzers-kuromoji-neologd.xml pom.xml && git commit lucene-analyzers-kuromoji-neologd.xml pom.xml -m "Set Lucene version to "${LUCENE_VERSION}
 
 KUROMOJI_SNAPSHOT_JAR_FILENAME=`ls -1 ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji*`
 mvn install:install-file \
@@ -270,7 +270,7 @@ mvn install:install-file \
 UDF_VERSION=`cat VERSION`
 mvn versions:set -DnewVersion=${UDF_VERSION}-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
 echo ${NEOLOGD_VERSION_DATE} > NEOLOGD_VERSION_DATE
-git commit VERSION NEOLOGD_VERSION_DATE pom.xml -m "Update version to ${UDF_VERSION}-${NEOLOGD_VERSION_DATE}"
+git commit --dry-run VERSION NEOLOGD_VERSION_DATE pom.xml && git commit VERSION NEOLOGD_VERSION_DATE pom.xml -m "Update version to ${UDF_VERSION}-${NEOLOGD_VERSION_DATE}"
 
 mvn clean install
 
