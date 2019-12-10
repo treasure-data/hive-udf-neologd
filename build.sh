@@ -2,6 +2,8 @@
 
 # The original script: https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript
 
+set -eu
+
 SCRIPT_NAME=$0
 KUROMOJI_NEOLOGD_BUILD_WORK_DIR=`pwd`
 
