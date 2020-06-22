@@ -2,6 +2,8 @@
 
 # The original script: https://github.com/kazuhira-r/kuromoji-with-mecab-neologd-buildscript
 
+set -eu
+
 SCRIPT_NAME=$0
 KUROMOJI_NEOLOGD_BUILD_WORK_DIR=`pwd`
 
@@ -224,16 +226,16 @@ if [ "${REDEFINED_KUROMOJI_PACKAGE}" != "${DEFAULT_KUROMOJI_PACKAGE}" ]; then
 
     test -d ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR} && rm -rf ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR}
     mkdir -p ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR}
-    find ${KUROMOJI_SRC_DIR}/src/java/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR}
+    find ${KUROMOJI_SRC_DIR}/src/java/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 -not -path ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR} | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR}
     find ${KUROMOJI_SRC_DIR}/src/java/${NEW_SRC_DIR} -type f | xargs perl -wp -i -e "s!${DEFAULT_KUROMOJI_PACKAGE//./\\.}!${REDEFINED_KUROMOJI_PACKAGE}!g"
 
     test -d ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR} && rm -rf ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR}
     mkdir -p ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR}
-    find ${KUROMOJI_SRC_DIR}/src/resources/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR}
+    find ${KUROMOJI_SRC_DIR}/src/resources/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 -not -path ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR} | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/resources/${NEW_SRC_DIR}
 
     test -d ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR} && rm -rf ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR}
     mkdir -p ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR}
-    find ${KUROMOJI_SRC_DIR}/src/tools/java/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR}
+    find ${KUROMOJI_SRC_DIR}/src/tools/java/${ORIGINAL_SRC_DIR} -mindepth 1 -maxdepth 1 -not -path ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR} | xargs -I{} mv {} ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR}
     find ${KUROMOJI_SRC_DIR}/src/tools/java/${NEW_SRC_DIR} -type f | xargs perl -wp -i -e "s!${DEFAULT_KUROMOJI_PACKAGE//./\\.}!${REDEFINED_KUROMOJI_PACKAGE}!g"
 
     perl -wp -i -e "s!${ORIGINAL_SRC_DIR}!${NEW_SRC_DIR}!g" build.xml
@@ -258,7 +260,7 @@ logging udf INFO 'Package hive-udf-neologd'
 
 mvn versions:set -f lucene-analyzers-kuromoji-neologd.xml -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
 mvn versions:set-property -Dproperty=lucene.version -DnewVersion=${LUCENE_VERSION} -DgenerateBackupPoms=false
-git commit lucene-analyzers-kuromoji-neologd.xml pom.xml -m "Set Lucene version to "${LUCENE_VERSION}
+git commit --dry-run lucene-analyzers-kuromoji-neologd.xml pom.xml && git commit lucene-analyzers-kuromoji-neologd.xml pom.xml -m "Set Lucene version to "${LUCENE_VERSION}
 
 KUROMOJI_SNAPSHOT_JAR_FILENAME=`ls -1 ${LUCENE_SRC_DIR}/lucene/build/analysis/kuromoji/lucene-analyzers-kuromoji*`
 mvn install:install-file \
@@ -268,7 +270,7 @@ mvn install:install-file \
 UDF_VERSION=`cat VERSION`
 mvn versions:set -DnewVersion=${UDF_VERSION}-${NEOLOGD_VERSION_DATE} -DgenerateBackupPoms=false
 echo ${NEOLOGD_VERSION_DATE} > NEOLOGD_VERSION_DATE
-git commit VERSION NEOLOGD_VERSION_DATE pom.xml -m "Update version to ${UDF_VERSION}-${NEOLOGD_VERSION_DATE}"
+git commit --dry-run VERSION NEOLOGD_VERSION_DATE pom.xml && git commit VERSION NEOLOGD_VERSION_DATE pom.xml -m "Update version to ${UDF_VERSION}-${NEOLOGD_VERSION_DATE}"
 
 mvn clean install
 
