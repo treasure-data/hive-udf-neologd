@@ -196,7 +196,7 @@ fi
 cd lucene
 
 # workaround for https://support.sonatype.com/hc/en-us/articles/360041287334
-sed -ie 's|http://repo1.maven.org/maven2|https://repo1.maven.org/maven2/|' common-build.xml
+sed -ie 's|http://repo1.maven.org/maven2|https://repo1.maven.org/maven2|' common-build.xml
 
 ant ivy-bootstrap
 
